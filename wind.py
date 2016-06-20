@@ -33,8 +33,18 @@ class Wind:
         """
         # http://api.wunderground.com/api/f36e51a5064819a4/conditions/q/CA/San_Francisco.json
         # http://api.wunderground.com/api/f36e51a5064819a4/conditions/q/KDLH.json
-        req = requests.get('http://api.wunderground.com/api/f36e51a5064819a4/conditions/q/KDLH.json')
-        return req.json()
+        data_dict = {}
+        url = 'http://api.wunderground.com/api/f36e51a5064819a4/conditions/q/{0}.json'
+        # loop through stations and add to dictionary
+        for station in self.station_list:
+            # airport code
+            if len(station) == 4:
+                data_dict[station] = requests.get(url.format(station)).json()
+            # personal station
+            else:
+                data_dict[station] = requests.get(url.format('pws:' + station)).json()
+
+        return data_dict
 
     def get_wind(self):
         """
@@ -42,12 +52,14 @@ class Wind:
         :return: wind info
         """
         self.weather_dict = self.get_data()
-        print '{0} : wind from {1} at {2} mph.'.format(self.weather_dict['current_observation']['station_id'],
-                                                       self.weather_dict['current_observation']['wind_dir'],
-                                                       self.weather_dict['current_observation']['wind_mph'])
+        # loop through and print results
+        for key, value in self.weather_dict.iteritems():
+            print '{0} : wind from {1} at {2} mph.'.format(key,
+                                                           value['current_observation']['wind_dir'],
+                                                           value['current_observation']['wind_mph'])
 
 
 if __name__ == '__main__':
     wind_class = Wind()
-    # wind_class.set_stations(['KDLH'])
+    wind_class.set_stations(['KDLH', 'KMNDULUT5'])
     wind_class.get_wind()
