@@ -11,9 +11,9 @@
 import requests
 
 
-class Wind:
-    def __init__(self):
-        self.api_key = 'f36e51a5064819a4'
+class Wind(object):
+    def __init__(self, key):
+        self.api_key = key
         self.weather_dict = {}
 
         # get station list
@@ -42,7 +42,8 @@ class Wind:
                 data_dict[station] = requests.get(url.format(station)).json()
             # personal station
             else:
-                data_dict[station] = requests.get(url.format('pws:' + station)).json()
+                data_dict[station] = requests.get(
+                    url.format('pws:' + station)).json()
 
         return data_dict
 
@@ -54,12 +55,17 @@ class Wind:
         self.weather_dict = self.get_data()
         # loop through and print results
         for key, value in self.weather_dict.iteritems():
-            print '{0} : wind from {1} at {2} mph.'.format(key,
-                                                           value['current_observation']['wind_dir'],
-                                                           value['current_observation']['wind_mph'])
+            if value['current_observation']['wind_mph'] > 0:
+                print '{0} : wind from {1} at {2} mph.' \
+                    .format(key,
+                            value['current_observation']['wind_dir'],
+                            value['current_observation']['wind_mph'])
 
 
 if __name__ == '__main__':
-    wind_class = Wind()
-    wind_class.set_stations(['KDLH', 'KMNDULUT5'])
+    wunderground_api_key = 'f36e51a5064819a4'
+    wind_class = Wind(wunderground_api_key)
+    wind_class.set_stations(
+        ['KDLH', 'KMNDULUT5', 'KMNHERMA5', 'KMNDULUT32', 'KMNDULUT34',
+         'KMNDULUT23', 'KMNDULUT7', 'KMNDULUT17'])
     wind_class.get_wind()
