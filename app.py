@@ -1,12 +1,34 @@
-
-
 # IMPORTS
 # local imports
 from wind import Wind
 from plot import Plot
 from store import Store
-#other imports
+# other imports
 import datetime
+import rfc822
+
+
+def remove_old(data):
+    """
+    remove old observations from wind data
+    :param wind_data: 
+    :return: new wind_data dictionary with old entries deleted
+    """
+    new_data = {}
+    # loop through current wind data dict
+    for station, d in data.iteritems():
+        # get difference in time between now and the observation time from
+        # the station
+        timediff = datetime.datetime.now() \
+                   - datetime.datetime.fromtimestamp(
+            rfc822.mktime_tz(rfc822.parsedate_tz(
+                d['current_observation']['observation_time_rfc822'])))
+        # check if observation has occured within the last 30 minutes
+        if abs(timediff.total_seconds()) < 1800:
+            new_data[station] = d
+
+    return new_data
+
 
 def main():
     # create wind instance
@@ -15,8 +37,9 @@ def main():
 
     # set wind stations
     windy.set_stations(
-        ['KDLH', 'KMNDULUT5', 'KMNHERMA5', 'KMNDULUT32', 'KMNDULUT34',
-         'KMNDULUT23', 'KMNDULUT7', 'KMNDULUT17'])
+        ['KDLH', 'KMNDULUT5', 'KMNDULUT69', 'KMNHERMA5', 'KMNDULUT32',
+         'KMNDULUT34', 'KMNDULUT23', 'KMNDULUT7', 'KMNDULUT17', 'KMNDULUT71',
+         'KMNDULUT86', 'KMNDULUT63', 'KMNDULUT83'])
 
     # create plot instance
     plotly_creds = {
@@ -35,11 +58,15 @@ def main():
     # get wind data
     wind_data = windy.get_data()
 
+    # remove observations that are not recent
+    wind_data = remove_old(wind_data)
+
     # wind plot
     plotter.wind_plot(wind_data)
 
     # store wind data
     storage.addrecord(wind_data)
+
 
 # RUN IT
 if __name__ == '__main__':
