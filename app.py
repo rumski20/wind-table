@@ -11,7 +11,7 @@ import rfc822
 def remove_old(data):
     """
     remove old observations from wind data
-    :param wind_data: 
+    :param wind_data:
     :return: new wind_data dictionary with old entries deleted
     """
     new_data = {}
@@ -36,10 +36,18 @@ def main():
     windy = Wind(wunderground_api_key)
 
     # set wind stations
-    windy.set_stations(
-        ['KDLH', 'KMNDULUT5', 'KMNDULUT69', 'KMNHERMA5', 'KMNDULUT32',
-         'KMNDULUT34', 'KMNDULUT23', 'KMNDULUT7', 'KMNDULUT17', 'KMNDULUT71',
-         'KMNDULUT86', 'KMNDULUT63', 'KMNDULUT83'])
+    # limit to ten per wunderground api per minute request limitations
+    # full
+    # station_list = [
+    #      'KMNDULUT5', 'KDLH', 'KMNDULUT69', 'KMNHERMA5', 'KMNDULUT32',
+    #      'KMNDULUT34', 'KMNDULUT23', 'KMNDULUT7', 'KMNDULUT17', 'KMNDULUT71',
+    #      'KMNDULUT86', 'KMNDULUT63', 'KMNDULUT83'
+    #       ]
+    station_list = [
+        'KMNDULUT5', 'KDLH', 'KMNDULUT69', 'KMNHERMA5', 'KMNDULUT32',
+        'KMNDULUT7', 'KMNDULUT71', 'KMNDULUT63', 'KMNDULUT83'
+         ]
+    windy.set_stations(station_list)
 
     # create plot instance
     plotly_creds = {
